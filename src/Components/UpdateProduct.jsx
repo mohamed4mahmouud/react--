@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
-const AddProduct = () => {
+const UpdateProduct = () => {
+  const { id } = useParams();
   const Navigate = useNavigate();
   let [product, setProduct] = useState({
     title: "",
@@ -11,7 +12,24 @@ const AddProduct = () => {
     stock: "",
     thumbnail: "https://source.unsplash.com/random",
   });
+  const getProduct = (prodId) => {
+    axios
+      .get(`http://localhost:2000/products/${prodId}`)
+      .then((res) => setProduct(res.data))
+      .catch((err) => console.log(err));
+  };
+  useEffect(() => {
+    getProduct(id);
+  }, []);
 
+  const update = (e) => {
+    e.preventDefault();
+    axios
+      .patch(`http://localhost:2000/products/${id}`, product)
+      .then((res) => setProduct(res.data))
+      .catch((err) => console.log(err));
+    Navigate("/");
+  };
   let handleChange = useCallback((e) => {
     const { name, value } = e.target;
 
@@ -29,12 +47,11 @@ const AddProduct = () => {
         setProduct(res);
       })
       .catch((err) => console.log(err));
-    Navigate("/");
   };
   return (
     <div>
       <h1>Add New Product</h1>
-      <form action="" onSubmit={addProduct}>
+      <form action="" onSubmit={update}>
         <div class="form-floating mb-3">
           <input
             type="text"
@@ -101,4 +118,4 @@ const AddProduct = () => {
   );
 };
 
-export default AddProduct;
+export default UpdateProduct;
